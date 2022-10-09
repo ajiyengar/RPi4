@@ -1,0 +1,31 @@
+diff --git a/Platform/RaspberryPi/RPi4/RPi4.dsc b/Platform/RaspberryPi/RPi4/RPi4.dsc
+index a9c0c36bb1..b4791e8428 100644
+--- a/Platform/RaspberryPi/RPi4/RPi4.dsc
++++ b/Platform/RaspberryPi/RPi4/RPi4.dsc
+@@ -494,7 +494,7 @@
+   # Debug-related.
+   #
+ 
+-  gRaspberryPiTokenSpaceGuid.PcdDebugEnableJTAG|L"DebugEnableJTAG"|gConfigDxeFormSetGuid|0x0|0
++  gRaspberryPiTokenSpaceGuid.PcdDebugEnableJTAG|L"DebugEnableJTAG"|gConfigDxeFormSetGuid|0x0|1
+ 
+   #
+   # Display-related.
+@@ -503,7 +503,7 @@
+   #
+   # Just enable native resolution by default.
+   #
+-  gRaspberryPiTokenSpaceGuid.PcdDisplayEnableScaledVModes|L"DisplayEnableScaledVModes"|gConfigDxeFormSetGuid|0x0|0x20
++  gRaspberryPiTokenSpaceGuid.PcdDisplayEnableScaledVModes|L"DisplayEnableScaledVModes"|gConfigDxeFormSetGuid|0x0|0x23
+   gRaspberryPiTokenSpaceGuid.PcdDisplayEnableSShot|L"DisplayEnableSShot"|gConfigDxeFormSetGuid|0x0|1
+ 
+   #
+@@ -519,7 +519,7 @@
+   # 1 - SYSTEM_TABLE_MODE_BOTH
+   # 2 - SYSTEM_TABLE_MODE_DT
+   #
+-  gRaspberryPiTokenSpaceGuid.PcdSystemTableMode|L"SystemTableMode"|gConfigDxeFormSetGuid|0x0|0
++  gRaspberryPiTokenSpaceGuid.PcdSystemTableMode|L"SystemTableMode"|gConfigDxeFormSetGuid|0x0|2
+ 
+   #
+   # Enable a fan in the ACPI thermal zone on GPIO pin #
