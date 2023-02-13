@@ -3,7 +3,7 @@
 set -e
 set -u
 
-VER=RPi4_UEFI_Firmware_v1.33
+VER=RPi4_UEFI_Firmware_v1.34
 SUBVER=${VER: -5}
 
 # Sync submodules

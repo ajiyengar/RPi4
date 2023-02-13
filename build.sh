@@ -2,7 +2,7 @@
 
 set -e
 
-VER=RPi4_UEFI_Firmware_v1.33
+VER=RPi4_UEFI_Firmware_v1.34
 export CROSS_COMPILE=$PWD/tools/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
 
 ###############
