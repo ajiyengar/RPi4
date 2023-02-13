@@ -3,13 +3,20 @@
 set -e
 set -u
 
+VER=RPi4_UEFI_Firmware_v1.33
+SUBVER=${VER: -5}
+
 # Sync submodules
 git submodule sync --recursive
 git submodule update --init --recursive --depth 1
 
 # Sync Rpi4 sdcard boot firmware
-mkdir -p sdcard
-curl --output-dir sdcard -sSLO https://github.com/pftf/RPi4/releases/download/v1.33/RPi4_UEFI_Firmware_v1.33.zip && unzip -d sdcard sdcard/RPi4_UEFI_Firmware_v1.33.zip
+mkdir -p sdcard/$VER
+curl --output-dir sdcard -sSLO https://github.com/pftf/RPi4/releases/download/$SUBVER/$VER.zip && unzip -d sdcard/$VER sdcard/$VER.zip
+
+# PATCH sdcard
+cp config.txt sdcard/$VER
+cp cmdline.txt sdcard/$VER
 
 # Sync Toolchain
 mkdir -p tools

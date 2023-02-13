@@ -2,6 +2,7 @@
 
 set -e
 
+VER=RPi4_UEFI_Firmware_v1.33
 export CROSS_COMPILE=$PWD/tools/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
 
 ###############
@@ -27,7 +28,7 @@ export DEFAULT_KEYS="-D DEFAULT_KEYS=TRUE -D PK_DEFAULT_FILE=$WORKSPACE/keys/pk.
 source edk2/edksetup.sh
 build -a ${ARCH} -t ${COMPILER} -b DEBUG -p edk2-platforms/Platform/RaspberryPi/RPi4/RPi4.dsc --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor=L"RPi4 Ajay Custom" --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString=L"RPi4 Ajay Custom v3" ${BUILD_FLAGS} ${DEFAULT_KEYS}
 
-cp Build/RPi4/DEBUG_${COMPILER}/FV/RPI_EFI.fd sdcard/RPi4_UEFI_Firmware_v1.33
+cp Build/RPi4/DEBUG_${COMPILER}/FV/RPI_EFI.fd sdcard/$VER
 
 
 ###############
@@ -44,11 +45,11 @@ cat > rootfs/sbin/init << 'EOF' &&
 export HOME=/home PATH=/bin:/sbin
 
 #mount -t devtmpfs dev /dev
-#exec 0<>/dev/console 1>&0 2>&1
-#for i in ,fd /0,stdin /1,stdout /2,stderr
-#do ln -sf /proc/self/fd${i/,*/} /dev/${i/*,/}; done
-#mkdir -p /dev/shm
-#chmod +t /dev/shm
+exec 0<>/dev/console 1>&0 2>&1
+for i in /,fd /0,stdin /1,stdout /2,stderr
+do ln -sf /proc/self/fd${i/,*/} /dev/${i/*,/}; done
+mkdir -p /dev/shm
+chmod +t /dev/shm
 mkdir -p /dev/pts
 mount -t devpts devpts /dev/pts
 mount -t proc proc /proc
@@ -59,9 +60,9 @@ ifconfig lo 127.0.0.1
 
 echo 3 > /proc/sys/kernel/printk     #cat /dev/kmsg
 
-CONSOLE=/dev/tty1                    #LCD
-##CONSOLE=/dev/ttyAMA0               #Serial
-echo -e '\e[?7hType exit when done.'
+#CONSOLE=/dev/tty1                    #LCD   (also /dev/console)
+CONSOLE=/dev/ttyAMA0                 #Serial
+echo -e '\e[?7hType exit when done.' #Vertical autowrap
 exec oneit -c $CONSOLE /bin/sh
 EOF
 chmod +x rootfs/sbin/init &&
@@ -79,14 +80,13 @@ echo -e 'root:x:0:\nguest:x:500:\nnobody:x:65534:' > rootfs/etc/group
 ###############
 # Build Linux
 ###############
-#TODO: Capture defconfig changes
 make -C linux ARCH=arm64 CROSS_COMPILE=$CROSS_COMPILE bcm2711_defconfig
 make -C linux -j$(nproc) ARCH=arm64 CROSS_COMPILE=$CROSS_COMPILE Image modules dtbs
 make -C linux -j$(nproc) ARCH=arm64 CROSS_COMPILE=$CROSS_COMPILE INSTALL_MOD_PATH=$PWD/rootfs modules_install
 
-mkdir -p sdcard/RPi4_UEFI_Firmware_v1.33/efi/boot
-cp linux/arch/arm64/boot/dts/broadcom/bcm2711-rpi-*4*.dtb sdcard/RPi4_UEFI_Firmware_v1.33
-cp linux/arch/arm64/boot/Image sdcard/RPi4_UEFI_Firmware_v1.33/efi/boot/bootaa64.efi
+mkdir -p sdcard/$VER/efi/boot
+cp linux/arch/arm64/boot/dts/broadcom/bcm2711-rpi-*4*.dtb sdcard/$VER
+cp linux/arch/arm64/boot/Image sdcard/$VER/efi/boot/bootaa64.efi
 
 
 ###############
@@ -121,4 +121,3 @@ ${CROSS_COMPILE}readelf -a mksh/mksh | grep -E "(program interpreter)|(Shared li
 sudo chown -R root:root rootfs
 sudo mknod -m 666 rootfs/dev/null c 1 3
 sudo mknod -m 600 rootfs/dev/console c 5 1
-
