@@ -34,8 +34,13 @@ cp Build/RPi4/DEBUG_${COMPILER}/FV/RPI_EFI.fd sdcard/$VER
 ###############
 # Make Rootfs
 ###############
-mkdir -p rootfs/{bin,dev,etc,home,mnt,root,lib64/modules,proc,sbin,sys/firmware/efi/efivars,tmp,usr/{bin,lib,sbin},var/log}
-ln -s lib64 rootfs/lib
+mkdir -p rootfs/{dev,etc,home,mnt,root,proc,sys/firmware/efi/efivars,tmp,usr/{bin,lib/modules},var/log}
+ln -s usr/bin rootfs/bin
+ln -s usr/bin rootfs/sbin
+ln -s usr/lib rootfs/lib
+ln -s usr/lib rootfs/lib64
+ln -s bin rootfs/usr/sbin
+ln -s lib rootfs/usr/lib64
 chmod a+rwxt rootfs/tmp
 
 # Based on https://github.com/landley/toybox/blob/master/scripts/mkroot.sh
@@ -93,15 +98,15 @@ cp linux/arch/arm64/boot/Image sdcard/$VER/efi/boot/bootaa64.efi
 # Build Toybox
 ###############
 make -C toybox ARCH=aarch64 CROSS_COMPILE=${CROSS_COMPILE} PREFIX=$PWD/rootfs defconfig toybox
-make -C toybox ARCH=aarch64 CROSS_COMPILE=${CROSS_COMPILE} PREFIX=$PWD/rootfs install
+make -C toybox ARCH=aarch64 CROSS_COMPILE=${CROSS_COMPILE} PREFIX=$PWD/rootfs/bin install_flat
 
 echo "toybox Dependencies:"
 ${CROSS_COMPILE}readelf -a toybox/toybox | grep -E "(program interpreter)|(Shared library)"
 
 export SYSROOT=$(${CROSS_COMPILE}gcc -print-sysroot)
-cp -L ${SYSROOT}/lib64/{ld-2.33.so,libcrypt.so.1,libm.so.6,libresolv.so.2,libc.so.6} rootfs/lib64/
-ln -s ld-2.33.so rootfs/lib64/ld-linux-aarch64.so.1
-
+cp -L ${SYSROOT}/lib64/{ld-2.33.so,libcrypt.so.1,libm.so.6,libresolv.so.2,libc.so.6} rootfs/usr/lib/
+ln -s ld-2.33.so rootfs/lib/ld-linux-aarch64.so.1
+ln -s ../lib/ld-2.33.so rootfs/usr/bin/ld.so
 
 ###############
 # Build Shell
